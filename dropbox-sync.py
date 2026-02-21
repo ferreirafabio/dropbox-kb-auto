@@ -10,10 +10,11 @@ from datetime import datetime
 
 # ── Config ─────────────────────────────────────────────────────────────────
 ENV_FILE        = os.path.expanduser("~/.openclaw/.env")
-OUTPUT_DIR      = Path("/home/openclaw/.openclaw/workspace/memory/knowledge/dropbox")
-PROGRESS_FILE   = Path("/home/openclaw/.openclaw/workspace/memory/dropbox-index-progress.json")
-CURSOR_FILE     = Path("/home/openclaw/.openclaw/workspace/memory/dropbox-cursor.json")
-LOG_FILE        = Path("/home/openclaw/.openclaw/workspace/memory/dropbox-indexer.log")
+OPENCLAW_HOME   = Path(os.environ.get("OPENCLAW_HOME", os.path.expanduser("~/.openclaw")))
+OUTPUT_DIR      = OPENCLAW_HOME / "workspace/memory/knowledge/dropbox"
+PROGRESS_FILE   = OPENCLAW_HOME / "workspace/memory/dropbox-index-progress.json"
+CURSOR_FILE     = OPENCLAW_HOME / "workspace/memory/dropbox-cursor.json"
+LOG_FILE        = OPENCLAW_HOME / "workspace/memory/dropbox-indexer.log"
 
 FOLDERS = ["/Documents", "/Work", "/Research"]
 SKIP_PATHS = ["/Archive", "/Backups", "/Photos"]
