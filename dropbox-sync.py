@@ -209,7 +209,7 @@ def safe_filename(path):
 def load_progress():
     if PROGRESS_FILE.exists():
         return json.loads(PROGRESS_FILE.read_text())
-    return {"indexed": [], "skipped": [], "failed": [], "last_updated": None}
+    return {"indexed": {}, "skipped": [], "failed": [], "last_updated": None}
 
 def save_progress(p):
     p["last_updated"] = datetime.utcnow().isoformat() + "Z"
@@ -239,10 +239,10 @@ def main():
     token = get_token(env)
     
     progress = load_progress()
-    indexed_set = set(progress["indexed"])
+    indexed_hashes = progress["indexed"]  # {path: content_hash}
     cursors = load_cursors()
-    
-    log(f"📋 Delta scan (already indexed: {len(indexed_set)})...")
+
+    log(f"📋 Delta scan (already indexed: {len(indexed_hashes)})...")
     
     all_changes = []
     for folder in FOLDERS:
@@ -259,54 +259,62 @@ def main():
     
     save_cursors(cursors)
     
-    # Filter to new indexable files
+    # Filter to new/changed indexable files
     to_index = []
     skipped = 0
     deleted = 0
-    
+    updated = 0
+
     for e in all_changes:
         path = e.get("path_display") or e.get("path_lower", "")
-        
+
         # Handle deletions
         if e.get(".tag") == "deleted":
-            if path in indexed_set:
-                progress["indexed"].remove(path)
+            if path in indexed_hashes:
+                del indexed_hashes[path]
                 deleted += 1
             continue
-        
+
         if e[".tag"] != "file":
             continue
-        
+
         path_lower = e["path_lower"]
         ext = path.rsplit(".", 1)[-1].lower() if "." in path else ""
         size = e.get("size", 0)
-        
-        # Skip if already indexed
-        if path in indexed_set:
-            continue
-        
+        content_hash = e.get("content_hash", "")
+
+        # Check if already indexed with same content
+        if path in indexed_hashes:
+            if indexed_hashes[path] == content_hash and content_hash:
+                # Content unchanged — skip
+                continue
+            # Content changed — re-index
+            log(f"  🔄 Changed: {Path(path).name}")
+            updated += 1
+
         # Skip by path
         if any(skip in path_lower for skip in SKIP_PATHS):
             skipped += 1
             continue
-        
+
         # Skip by extension
         if ext not in INDEX_EXTS:
             skipped += 1
             continue
-        
+
         # Skip if too large
         if size > MAX_FILE_SIZE:
             log(f"  ⏭️ Skipping (too large): {path} ({size//1024}KB)")
             skipped += 1
             continue
-        
-        to_index.append({"path": path, "size": size, "ext": ext})
-    
-    log(f"✅ {len(to_index)} new, {skipped} skipped, {deleted} deleted")
+
+        to_index.append({"path": path, "size": size, "ext": ext, "content_hash": content_hash})
+
+    log(f"✅ {len(to_index)} to index ({updated} updated), {skipped} skipped, {deleted} deleted")
     
     if not to_index and deleted == 0:
         log("✨ Nothing changed. All done!")
+        save_progress(progress)
         return
     
     # Index new files
@@ -315,6 +323,7 @@ def main():
     
     for i, file_info in enumerate(to_index, 1):
         path = file_info["path"]
+        content_hash = file_info.get("content_hash", "")
         log(f"[{i}/{len(to_index)}] {Path(path).name}...")
         
         data = download_file(token, path)
@@ -335,7 +344,7 @@ def main():
         header = f"# {Path(path).name}\n**Path:** {path}\n**Extracted:** {datetime.now().strftime('%Y-%m-%d')}\n\n"
         (OUTPUT_DIR / out_name).write_text(header + text)
         
-        progress["indexed"].append(path)
+        indexed_hashes[path] = content_hash
         new_indexed += 1
         
         if i % 10 == 0:

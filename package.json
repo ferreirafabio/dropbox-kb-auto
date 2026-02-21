@@ -1,6 +1,6 @@
 {
   "name": "dropbox-kb-auto",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Fully automated Dropbox knowledge base with interactive setup, delta-based sync, OCR, Office file extraction, PostgreSQL integration, and semantic search. One-command installer configures folders, exclusions, file types, cron jobs, and search capabilities.",
   "author": "Fabio Ferreira <f4bio.ferreira@gmail.com>",
   "license": "MIT",

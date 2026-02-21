@@ -1,6 +1,10 @@
 # Dropbox KB Auto
 
-**Turn your Dropbox into a searchable knowledge base.** This OpenClaw skill automatically syncs, extracts text, and indexes your files so your agent can answer questions about any document you've stored.
+## What problem does this solve?
+
+You have years of documents, receipts, research papers, and notes in Dropbox — but your AI agent can't search any of them. Finding a specific file means opening Dropbox and digging through folders manually.
+
+This skill connects Dropbox to your agent's knowledge base. It syncs your files, extracts text (including OCR for scans and photos), and indexes everything so you can ask natural-language questions like *"Find my Q1 2025 expense receipts"* and get answers instantly.
 
 ## How It Works
 
@@ -41,7 +45,7 @@
 
 ## Features
 
-- **Delta sync** - Only processes new/changed files via Dropbox cursor API (10x-100x faster than full scans)
+- **Delta sync with content hashing** - Only processes new/changed files via Dropbox cursor API and content hashes (unchanged files are never re-downloaded or re-processed)
 - **Multi-format extraction** - PDF, Word, Excel, PowerPoint, images, plain text
 - **OCR** - Reads scanned documents and photos via Tesseract
 - **Interactive installer** - Configures folders, exclusions, cron schedule in one command

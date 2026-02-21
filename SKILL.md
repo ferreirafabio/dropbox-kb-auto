@@ -1,15 +1,12 @@
 # Dropbox KB Auto
 
-**Turn your Dropbox into a searchable knowledge base.** Automatically syncs, extracts text from documents/images, and makes everything searchable through your agent.
+## What problem does this solve?
+
+Your AI agent can't search your Dropbox. Documents, receipts, research papers, and notes sit in folders your agent doesn't know about — so you end up searching manually.
+
+This skill bridges that gap: it syncs files from Dropbox, extracts text (PDF, Office, OCR for scans), and indexes everything into your agent's knowledge base. Changed files are detected via content hashing and automatically re-indexed. Unchanged files are never re-processed.
 
 One-command installer configures folders, exclusions, file types, cron scheduling, and OpenClaw memory integration.
-
-## When to Use This Skill
-
-- You have documents, receipts, research papers, or notes scattered across Dropbox
-- You want to ask your agent natural-language questions about any stored file
-- You need OCR for scanned documents or photos of text
-- You want automated, hands-off syncing that only processes changes
 
 ## What This Skill Does
 
